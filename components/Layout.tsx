@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   PieChart, 
@@ -8,8 +9,12 @@ import {
   Menu, 
   X, 
   Bell,
-  User
+  User,
+  LogOut,
+  LogIn
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
 
 // USER ACTION REQUIRED: Place your 'logo.png' file in the public folder
 const LOGO_URL = "/logo.png";
@@ -17,6 +22,8 @@ const LOGO_URL = "/logo.png";
 const Layout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
 
   const navItems = [
     { name: 'Home', path: '/', icon: LayoutDashboard },
@@ -24,6 +31,15 @@ const Layout: React.FC = () => {
     { name: 'Orders', path: '/orders', icon: History },
     { name: 'Reports', path: '/reports', icon: FileText },
   ];
+
+  const handleLogin = () => {
+    navigate('/login');
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/login');
+  };
 
   return (
     <div className="min-h-screen bg-black text-slate-100 font-sans flex flex-col md:flex-row">
@@ -90,14 +106,38 @@ const Layout: React.FC = () => {
         </nav>
 
         <div className="absolute bottom-0 w-full p-6 border-t border-gold-900/10 bg-gradient-to-t from-gold-950/20 to-transparent">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-neutral-900 flex items-center justify-center border border-gold-500/30 shadow-sm shadow-gold-900/20">
-              <User className="w-5 h-5 text-gold-500" />
+          <div className="flex items-center gap-3 justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-neutral-900 flex items-center justify-center border border-gold-500/30 shadow-sm shadow-gold-900/20">
+                <User className="w-5 h-5 text-gold-500" />
+              </div>
+              <div className="overflow-hidden">
+                <p className="text-sm font-semibold text-gold-100 font-serif truncate w-32">
+                  {user ? (user.email || 'Member') : 'Guest'}
+                </p>
+                <p className="text-xs text-gold-600">
+                  {user ? 'Premium Member' : 'Welcome'}
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-semibold text-gold-100 font-serif">Arjun Mehta</p>
-              <p className="text-xs text-gold-600">Premium Member</p>
-            </div>
+            
+            {user ? (
+               <button 
+                 onClick={handleSignOut}
+                 className="text-neutral-500 hover:text-red-400 transition-colors p-2"
+                 title="Sign Out"
+               >
+                 <LogOut className="w-4 h-4" />
+               </button>
+            ) : (
+               <button 
+                 onClick={handleLogin}
+                 className="text-neutral-500 hover:text-gold-400 transition-colors p-2"
+                 title="Sign In"
+               >
+                 <LogIn className="w-4 h-4" />
+               </button>
+            )}
           </div>
         </div>
       </aside>
