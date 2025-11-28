@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { 
@@ -14,10 +13,7 @@ import {
   LogIn
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { supabase } from '../lib/supabase';
-
-// USER ACTION REQUIRED: Place your 'logo.png' file in the public folder
-const LOGO_URL = "/logo.png";
+import { Logo } from './ui/Logo';
 
 const Layout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -26,19 +22,30 @@ const Layout: React.FC = () => {
   const { user, signOut } = useAuth();
 
   const navItems = [
-    { name: 'Home', path: '/', icon: LayoutDashboard },
+    { name: 'Invest', path: '/invest', icon: LayoutDashboard },
     { name: 'Portfolio', path: '/portfolio', icon: PieChart },
     { name: 'Orders', path: '/orders', icon: History },
     { name: 'Reports', path: '/reports', icon: FileText },
   ];
 
-  const handleLogin = () => {
+  const handleLogin = (e: React.MouseEvent) => {
+    e.stopPropagation();
     navigate('/login');
   };
 
-  const handleSignOut = async () => {
+  const handleSignOut = async (e: React.MouseEvent) => {
+    e.stopPropagation();
     await signOut();
     navigate('/login');
+  };
+  
+  const handleProfileClick = () => {
+    if (user) {
+      navigate('/profile');
+      setIsSidebarOpen(false);
+    } else {
+      navigate('/login');
+    }
   };
 
   return (
@@ -47,13 +54,9 @@ const Layout: React.FC = () => {
       {/* Mobile Header */}
       <div className="md:hidden sticky top-0 z-50 bg-black/95 backdrop-blur-md border-b border-gold-900/30 px-4 py-3 flex justify-between items-center shadow-lg shadow-gold-900/5">
         <div className="flex items-center gap-3">
-           {/* Mobile Logo */}
-          <div className="h-12 w-auto">
-             <img 
-               src={LOGO_URL} 
-               alt="100 Crore Club" 
-               className="h-full w-auto object-contain" 
-             />
+           {/* Mobile Logo Text */}
+          <div className="flex flex-col justify-center">
+             <Logo className="h-8 w-auto" />
           </div>
         </div>
         <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="text-gold-400">
@@ -67,20 +70,14 @@ const Layout: React.FC = () => {
         md:relative md:translate-x-0
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
-        <div className="p-6 border-b border-gold-900/20 flex flex-col items-center justify-center min-h-[180px]">
-          {/* Main Logo Container */}
-          <div className="w-full relative flex justify-center py-4">
-            <div className="w-60 h-auto transition-transform duration-500 hover:scale-105">
-               <img 
-                src={LOGO_URL} 
-                alt="100 Crore Club Logo" 
-                className="w-full h-auto object-contain drop-shadow-[0_0_15px_rgba(212,175,55,0.15)]"
-               />
-            </div>
+        <div className="p-8 border-b border-gold-900/20 flex flex-col items-center justify-center min-h-[140px]">
+          {/* Main Logo Text */}
+          <div className="w-full relative flex flex-col items-center justify-center py-2 text-center">
+            <Logo className="w-48 h-auto" />
           </div>
         </div>
 
-        <nav className="mt-6 px-4 space-y-2">
+        <nav className="mt-8 px-4 space-y-2">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
             return (
@@ -106,17 +103,20 @@ const Layout: React.FC = () => {
         </nav>
 
         <div className="absolute bottom-0 w-full p-6 border-t border-gold-900/10 bg-gradient-to-t from-gold-950/20 to-transparent">
-          <div className="flex items-center gap-3 justify-between">
+          <div 
+            onClick={handleProfileClick}
+            className="flex items-center gap-3 justify-between group cursor-pointer hover:bg-neutral-900/50 p-2 rounded-lg transition-colors -mx-2"
+          >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-neutral-900 flex items-center justify-center border border-gold-500/30 shadow-sm shadow-gold-900/20">
+              <div className="w-10 h-10 rounded-full bg-neutral-900 flex items-center justify-center border border-gold-500/30 shadow-sm shadow-gold-900/20 group-hover:border-gold-500/60 transition-colors">
                 <User className="w-5 h-5 text-gold-500" />
               </div>
               <div className="overflow-hidden">
-                <p className="text-sm font-semibold text-gold-100 font-serif truncate w-32">
-                  {user ? (user.email || 'Member') : 'Guest'}
+                <p className="text-sm font-semibold text-gold-100 font-serif truncate w-32 group-hover:text-gold-400 transition-colors">
+                  {user ? (user.user_metadata?.fullName || user.email || 'Member') : 'Guest'}
                 </p>
                 <p className="text-xs text-gold-600">
-                  {user ? 'Premium Member' : 'Welcome'}
+                  {user ? 'Premium Member' : 'Sign In'}
                 </p>
               </div>
             </div>

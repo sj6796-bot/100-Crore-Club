@@ -1,17 +1,15 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, ArrowRight, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Loader2, AlertCircle, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
-
-// USER ACTION REQUIRED: Ensure 'logo.png' is in your public folder
-const LOGO_URL = "/logo.png";
+import { Logo } from '../components/ui/Logo';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -55,6 +53,41 @@ const Login: React.FC = () => {
     }
   };
 
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccessMsg(null);
+
+    if (!email) {
+      setError('Please enter your email address.');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/#/profile', // Redirect back to app to set new password
+      });
+      if (error) throw error;
+      setSuccessMsg('Password reset link sent to your email.');
+    } catch (err: any) {
+      setError(err.message || 'Failed to send reset email.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getHeaderText = () => {
+    if (isForgotPassword) return 'Reset Password';
+    return isLogin ? 'Welcome Back' : 'Join the Club';
+  };
+
+  const getSubText = () => {
+    if (isForgotPassword) return 'Enter your email to receive instructions';
+    return isLogin ? 'Access your wealth portfolio' : 'Start your premium journey';
+  };
+
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background Ambience */}
@@ -64,20 +97,14 @@ const Login: React.FC = () => {
 
       <div className="w-full max-w-md relative z-10">
         
-        {/* Logo Section */}
+        {/* Logo Text Section */}
         <div className="text-center mb-10 flex flex-col items-center">
-          <div className="w-32 h-auto mb-6 transform hover:scale-105 transition-transform duration-500">
-             <img 
-               src={LOGO_URL} 
-               alt="100 Crore Club" 
-               className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(212,175,55,0.2)]"
-             />
-          </div>
-          <h1 className="text-3xl font-serif text-white tracking-wide">
-            {isLogin ? 'Welcome Back' : 'Join the Club'}
-          </h1>
+          <Logo className="h-20 w-auto mb-4" />
+          <h2 className="text-xl font-serif text-white tracking-wide mt-2">
+            {getHeaderText()}
+          </h2>
           <p className="text-neutral-500 text-sm mt-2 tracking-wider uppercase">
-            {isLogin ? 'Access your wealth portfolio' : 'Start your premium journey'}
+            {getSubText()}
           </p>
         </div>
 
@@ -86,7 +113,7 @@ const Login: React.FC = () => {
           {/* Top Sheen */}
           <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-gold-500/30 to-transparent"></div>
           
-          <form onSubmit={handleAuth} className="space-y-6">
+          <form onSubmit={isForgotPassword ? handlePasswordReset : handleAuth} className="space-y-6">
             
             {/* Error Message */}
             {error && (
@@ -121,23 +148,40 @@ const Login: React.FC = () => {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-xs text-gold-600 font-semibold uppercase tracking-wider ml-1">Password</label>
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-neutral-500 group-focus-within:text-gold-500 transition-colors" />
+            {!isForgotPassword && (
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <label className="text-xs text-gold-600 font-semibold uppercase tracking-wider ml-1">Password</label>
+                  {isLogin && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsForgotPassword(true);
+                        setError(null);
+                        setSuccessMsg(null);
+                      }}
+                      className="text-[10px] text-neutral-500 hover:text-gold-400 transition-colors uppercase tracking-wider"
+                    >
+                      Forgot Password?
+                    </button>
+                  )}
                 </div>
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-11 pr-4 py-3.5 bg-neutral-900 border border-neutral-800 rounded-xl text-neutral-200 placeholder-neutral-600 focus:outline-none focus:border-gold-500/50 focus:ring-1 focus:ring-gold-500/20 transition-all"
-                  placeholder="••••••••"
-                  minLength={6}
-                />
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Lock className="h-5 w-5 text-neutral-500 group-focus-within:text-gold-500 transition-colors" />
+                  </div>
+                  <input
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="block w-full pl-11 pr-4 py-3.5 bg-neutral-900 border border-neutral-800 rounded-xl text-neutral-200 placeholder-neutral-600 focus:outline-none focus:border-gold-500/50 focus:ring-1 focus:ring-gold-500/20 transition-all"
+                    placeholder="••••••••"
+                    minLength={6}
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
             <button
               type="submit"
@@ -148,27 +192,43 @@ const Login: React.FC = () => {
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
                 <>
-                  {isLogin ? 'Sign In' : 'Create Account'}
-                  <ArrowRight className="ml-2 w-4 h-4" />
+                  {isForgotPassword 
+                    ? 'Send Reset Link' 
+                    : (isLogin ? 'Sign In' : 'Create Account')
+                  }
+                  {!isForgotPassword && <ArrowRight className="ml-2 w-4 h-4" />}
                 </>
               )}
             </button>
           </form>
 
           <div className="mt-8 text-center">
-            <p className="text-neutral-500 text-sm">
-              {isLogin ? "Don't have an account?" : "Already a member?"}
+            {isForgotPassword ? (
               <button
                 onClick={() => {
-                  setIsLogin(!isLogin);
+                  setIsForgotPassword(false);
                   setError(null);
                   setSuccessMsg(null);
                 }}
-                className="ml-2 text-gold-400 hover:text-gold-300 font-medium hover:underline underline-offset-4 transition-colors"
+                className="flex items-center justify-center gap-2 mx-auto text-gold-400 hover:text-gold-300 text-sm font-medium transition-colors"
               >
-                {isLogin ? 'Apply for Access' : 'Sign In'}
+                <ArrowLeft className="w-4 h-4" /> Back to Sign In
               </button>
-            </p>
+            ) : (
+              <p className="text-neutral-500 text-sm">
+                {isLogin ? "Don't have an account?" : "Already a member?"}
+                <button
+                  onClick={() => {
+                    setIsLogin(!isLogin);
+                    setError(null);
+                    setSuccessMsg(null);
+                  }}
+                  className="ml-2 text-gold-400 hover:text-gold-300 font-medium hover:underline underline-offset-4 transition-colors"
+                >
+                  {isLogin ? 'Apply for Access' : 'Sign In'}
+                </button>
+              </p>
+            )}
           </div>
         </div>
         
