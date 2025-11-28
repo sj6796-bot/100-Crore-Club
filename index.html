@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>100 Crore Club</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              gold: {
+                50: '#FBF7E3',
+                100: '#F7EFC0',
+                200: '#EFE085',
+                300: '#E6CF53',
+                400: '#EBC028',
+                500: '#D4AF37', // Classic Gold
+                600: '#AA8C2C',
+                700: '#856D22',
+                800: '#645219',
+                900: '#463912',
+                950: '#2A220B',
+              },
+              neutral: {
+                850: '#171717',
+                900: '#121212', // Material Black
+                950: '#050505', // Deep Black
+              }
+            },
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+              serif: ['"Playfair Display"', 'serif'],
+            },
+            backgroundImage: {
+              'gold-gradient': 'linear-gradient(135deg, #D4AF37 0%, #AA8C2C 100%)',
+              'black-gradient': 'linear-gradient(to bottom, #121212, #000000)',
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        background-color: #000000;
+        color: #f8fafc;
+      }
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #000000; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #463912; 
+        border-radius: 4px;
+        border: 1px solid #000000;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #856D22; 
+      }
+      .text-gold-glow {
+        text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
+    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.6",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "recharts": "https://aistudiocdn.com/recharts@^3.5.0"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
